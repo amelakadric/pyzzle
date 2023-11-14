@@ -89,56 +89,6 @@ class BFS(Algorithm):
         return []
 
 
-class AStar(Algorithm):
-    def __init__(self, heuristic=None):
-        super().__init__(heuristic)
-
-    def get_steps(self, initial_state, goal_state):
-        open_set = [(self.heuristic.get_evaluation(initial_state), 0, initial_state)]
-        closed_set = set()
-        came_from = {}
-        g_scores = {initial_state: 0}
-
-        while open_set:
-            _, cost, current = heapq.heappop(open_set)
-
-            if current == goal_state:
-                return self.reconstruct_path(came_from, initial_state, goal_state)
-
-            closed_set.add(current)
-            for action in self.get_legal_actions(current):
-                neighbor = self.apply_action(current, action)
-                tentative_g_score = g_scores[current] + 1
-
-                if neighbor in closed_set or (
-                    neighbor in g_scores and tentative_g_score >= g_scores[neighbor]
-                ):
-                    continue
-
-                if neighbor not in g_scores or tentative_g_score < g_scores[neighbor]:
-                    came_from[neighbor] = current
-                    g_scores[neighbor] = tentative_g_score
-                    heapq.heappush(
-                        open_set,
-                        (
-                            tentative_g_score + self.heuristic.get_evaluation(neighbor),
-                            tentative_g_score,
-                            neighbor,
-                        ),
-                    )
-
-        return None
-
-    def reconstruct_path(self, came_from, initial_state, goal_state):
-        current = goal_state
-        path = []
-        while current != initial_state:
-            path.append(current)
-            current = came_from[current]
-        path.reverse()
-        return path
-
-
 class BF(Algorithm):
     def get_steps(self, initial_state, goal_state):
         visited = set()
@@ -166,5 +116,42 @@ class BF(Algorithm):
                     priority_queue.put(
                         (self.heuristic.get_evaluation(new_state), new_state, new_path)
                     )
+
+        return None
+
+
+class AStar(Algorithm):
+    def __init__(self, heuristic=None):
+        super().__init__(heuristic)
+        self.explored_states = set()
+
+    def get_steps(self, initial_state, goal_state):
+        open_set = [(0, initial_state, [])]  # Priority queue (f-value, state, actions)
+        heapq.heapify(open_set)
+        g_values = {initial_state: 0}
+
+        while open_set:
+            current_f, current_state, actions = heapq.heappop(open_set)
+            if current_state == goal_state:
+                return actions
+
+            if current_state not in self.explored_states:
+                self.explored_states.add(current_state)
+                legal_actions = self.get_legal_actions(current_state)
+
+                for action in legal_actions:
+                    successor_state = self.apply_action(current_state, action)
+                    cost = g_values[current_state] + 1
+
+                    if (
+                        successor_state not in g_values
+                        or cost < g_values[successor_state]
+                    ):
+                        g_values[successor_state] = cost
+                        h_value = self.heuristic.get_evaluation(successor_state)
+                        f_value = cost + h_value
+                        heapq.heappush(
+                            open_set, (f_value, successor_state, actions + [action])
+                        )
 
         return None
