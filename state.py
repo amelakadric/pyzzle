@@ -8,7 +8,7 @@ def get_pos_2d(index_1d):
 
 def get_inversion_count(state):
     inversion_count = 0
-    last_tile_val = config.N ** 2
+    last_tile_val = config.N**2
     for i in range(last_tile_val - 1):
         for j in range(i + 1, last_tile_val):
             if state[i] and state[j] and state[i] > state[j]:
@@ -26,7 +26,7 @@ def is_solvable(state):
 
 def get_init_and_goal_states(seed=123):
     np.random.seed(seed)
-    initial_state = [ident for ident in range(config.N ** 2)]
+    initial_state = [ident for ident in range(config.N**2)]
     goal_state = tuple(initial_state[1:] + [initial_state[0]])
     while True:
         np.random.shuffle(initial_state)
