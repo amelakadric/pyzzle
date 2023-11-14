@@ -3,7 +3,7 @@ import heapq
 import queue
 import random
 import time
-from queue import Queue
+from queue import PriorityQueue, Queue
 
 import config
 
@@ -68,7 +68,7 @@ class ExampleAlgorithm(Algorithm):
         return solution_actions
 
 
-class BreadthFirstSearchAlgorithm(Algorithm):
+class BFS(Algorithm):
     def get_steps(self, initial_state, goal_state):
         visited = set()
         visited.add(initial_state)
@@ -89,7 +89,7 @@ class BreadthFirstSearchAlgorithm(Algorithm):
         return []
 
 
-class AstarAlgorithm(Algorithm):
+class AStar(Algorithm):
     def __init__(self, heuristic=None):
         super().__init__(heuristic)
 
@@ -139,57 +139,32 @@ class AstarAlgorithm(Algorithm):
         return path
 
 
-class BestFirstSearch(Algorithm):
-    def __init__(self, heuristic=None):
-        super().__init__(heuristic)
-        self.memoization = {}
-
+class BF(Algorithm):
     def get_steps(self, initial_state, goal_state):
-        self.nodes_evaluated = 0
-        self.nodes_generated = 0
+        visited = set()
+        priority_queue = PriorityQueue()
+        priority_queue.put(
+            (self.heuristic.get_evaluation(initial_state), initial_state, [])
+        )
 
-        open_set = queue.PriorityQueue()
-        open_set.put((self.heuristic.get_evaluation(initial_state), initial_state))
-        closed_set = set()
+        while not priority_queue.empty():
+            _, current_state, current_path = priority_queue.get()
 
-        while not open_set.empty():
-            current_priority, current_state = open_set.get()
+            if current_state in visited:
+                continue
+
+            visited.add(current_state)
 
             if current_state == goal_state:
-                return self.extract_solution_steps(initial_state, current_state)
+                return current_path
 
-            closed_set.add(current_state)
             legal_actions = self.get_legal_actions(current_state)
-
             for action in legal_actions:
-                neighbor_state = self.apply_action(current_state, action)
+                new_state = self.apply_action(current_state, action)
+                if new_state not in visited:
+                    new_path = current_path + [action]
+                    priority_queue.put(
+                        (self.heuristic.get_evaluation(new_state), new_state, new_path)
+                    )
 
-                if (
-                    neighbor_state not in closed_set
-                    and neighbor_state not in self.memoization
-                ):
-                    priority = self.heuristic.get_evaluation(neighbor_state)
-                    open_set.put((priority, neighbor_state))
-                    self.memoization[neighbor_state] = priority
-                    closed_set.add(neighbor_state)
-
-                    self.nodes_generated += 1
-
-            self.nodes_evaluated += 1
-
-        # No solution found
-        return []
-
-    def extract_solution_steps(self, initial_state, goal_state):
-        current_state = goal_state
-        solution_actions = []
-
-        while current_state != initial_state:
-            for action in self.get_legal_actions(current_state):
-                neighbor_state = self.apply_action(current_state, action)
-                if neighbor_state == current_state:
-                    solution_actions.append(action)
-                    current_state = neighbor_state
-                    break
-
-        return solution_actions[::-1]
+        return None
