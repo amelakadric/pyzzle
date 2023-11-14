@@ -69,6 +69,7 @@ class ExampleAlgorithm(Algorithm):
 class BreadthFirstSearchAlgorithm(Algorithm):
     def get_steps(self, initial_state, goal_state):
         visited = set()
+        visited.add(initial_state)
         queue = deque([(initial_state, [])])
 
         while queue:
@@ -76,11 +77,11 @@ class BreadthFirstSearchAlgorithm(Algorithm):
             if current_state == goal_state:
                 return path
 
-            visited.add(current_state)
             legal_actions = self.get_legal_actions(current_state)
             for action in legal_actions:
                 next_state = self.apply_action(current_state, action)
                 if next_state not in visited:
+                    visited.add(next_state)
                     queue.append((next_state, path + [action]))
 
         return []
