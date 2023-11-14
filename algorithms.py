@@ -1,5 +1,6 @@
 import random
 import time
+from queue import Queue
 
 import config
 
@@ -58,12 +59,26 @@ class ExampleAlgorithm(Algorithm):
 
 class BFSAlgorithm(Algorithm):
     def get_steps(self, initial_state, goal_state):
-        state=initial_state
-        solution_actions = []
-        while state != goal_state:
-            legal_actions = self.get_legal_actions(state)
-            action = legal_actions[random.randint(0, len(legal_actions) - 1)]
-            solution_actions.append(action)
-            state = self.apply_action(state, action)
+        # Initialize queue with the initial state
+        queue = Queue()
+        queue.put((initial_state, []))  # Each queue element is a tuple (state, actions_taken)
 
-        return solution_actions
+        while not queue.empty():
+            current_state, actions_taken = queue.get()
+
+            # If the current state is the goal state, return the solution
+            if current_state == goal_state:
+                return actions_taken
+
+            # Explore all legal actions from the current state
+            legal_actions = self.get_legal_actions(current_state)
+
+            for action in legal_actions:
+                new_state = self.apply_action(current_state, action)
+                new_actions_taken = actions_taken + [action]
+
+                # Add the new state and actions to the queue
+                queue.put((new_state, new_actions_taken))
+
+        # If the queue is empty and the goal state is not reached, the puzzle is unsolvable
+        return None
