@@ -1,6 +1,6 @@
 # pyzzle
-Project for Intelligent systems course
-Solving the k-puzzle with BFS, Best first search and A* algorithms 
+Project for Intelligent systems course <br />
+Solving the k-puzzle with BFS, Best first search and A* algorithms <br />
 and Hamming and Manhattan heuristics.
 
 use <br />
