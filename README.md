@@ -1,5 +1,5 @@
 # pyzzle
-Project for Intelligent systems course <br />
+<h2>Project for Intelligent systems course</h2> <br />
 Solving the k-puzzle with BFS, Best first search and A* algorithms <br />
 and Hamming and Manhattan heuristics.
 
