@@ -23,25 +23,6 @@ class HammingHeuristic(Heuristic):
         return h
 
 
-from state import get_init_and_goal_states
-
-
-# class ManhattanHeuristic(Heuristic):
-#     def get_evaluation(self, state):
-#         total_distance = 0
-#         states = get_init_and_goal_states()
-#         goal_state = states[1]
-#         for tile in range(len(state)):
-#             if state[tile] != 0:
-#                 current_pos = get_pos_2d(state.index(tile))
-#                 goal_pos = get_pos_2d(goal_state.index(tile))
-#                 distance = abs(current_pos[0] - goal_pos[0]) + abs(
-#                     current_pos[1] - goal_pos[1]
-#                 )
-#                 total_distance += distance
-#         return total_distance
-
-
 class ManhattanHeuristic(Heuristic):
     def get_evaluation(self, state):
         h_value = 0
