@@ -6,6 +6,7 @@ import time
 from queue import PriorityQueue, Queue
 
 import config
+from state import is_solvable
 
 
 class Algorithm:
@@ -70,21 +71,24 @@ class ExampleAlgorithm(Algorithm):
 
 class BFS(Algorithm):
     def get_steps(self, initial_state, goal_state):
-        visited = set()
-        visited.add(initial_state)
+        visitedStates = set()
+        visitedStates.add(initial_state)
         queue = deque([(initial_state, [])])
 
         while queue:
-            current_state, path = queue.popleft()
-            if current_state == goal_state:
-                return path
+            currentState, currentPath = queue.popleft()
 
-            legal_actions = self.get_legal_actions(current_state)
-            for action in legal_actions:
-                next_state = self.apply_action(current_state, action)
-                if next_state not in visited:
-                    visited.add(next_state)
-                    queue.append((next_state, path + [action]))
+            if currentState == goal_state:
+                return currentPath
+
+            legalActions = self.get_legal_actions(currentState)
+
+            for action in legalActions:
+                nextState = self.apply_action(currentState, action)
+
+                if nextState not in visitedStates:
+                    visitedStates.add(nextState)
+                    queue.append((nextState, currentPath + [action]))
 
         return []
 
@@ -92,29 +96,29 @@ class BFS(Algorithm):
 class BF(Algorithm):
     def get_steps(self, initial_state, goal_state):
         visited = set()
-        priority_queue = PriorityQueue()
-        priority_queue.put(
+        priorityQueue = PriorityQueue()
+        priorityQueue.put(
             (self.heuristic.get_evaluation(initial_state), initial_state, [])
         )
 
-        while not priority_queue.empty():
-            _, current_state, current_path = priority_queue.get()
+        while not priorityQueue.empty():
+            _, currentState, currentPath = priorityQueue.get()
 
-            if current_state in visited:
+            if currentState in visited:
                 continue
 
-            visited.add(current_state)
+            visited.add(currentState)
 
-            if current_state == goal_state:
-                return current_path
+            if currentState == goal_state:
+                return currentPath
 
-            legal_actions = self.get_legal_actions(current_state)
-            for action in legal_actions:
-                new_state = self.apply_action(current_state, action)
-                if new_state not in visited:
-                    new_path = current_path + [action]
-                    priority_queue.put(
-                        (self.heuristic.get_evaluation(new_state), new_state, new_path)
+            legalActions = self.get_legal_actions(currentState)
+            for action in legalActions:
+                newState = self.apply_action(currentState, action)
+                if newState not in visited:
+                    newPath = currentPath + [action]
+                    priorityQueue.put(
+                        (self.heuristic.get_evaluation(newState), newState, newPath)
                     )
 
         return None
@@ -123,35 +127,33 @@ class BF(Algorithm):
 class AStar(Algorithm):
     def __init__(self, heuristic=None):
         super().__init__(heuristic)
-        self.explored_states = set()
+        self.exploredStates = set()
 
     def get_steps(self, initial_state, goal_state):
-        open_set = [(0, initial_state, [])]  # Priority queue (f-value, state, actions)
-        heapq.heapify(open_set)
-        g_values = {initial_state: 0}
+        openSet = [(0, initial_state, [])]
+        heapq.heapify(openSet)
+        gValues = {initial_state: 0}
 
-        while open_set:
-            current_f, current_state, actions = heapq.heappop(open_set)
-            if current_state == goal_state:
+        while openSet:
+            currentF, currentState, actions = heapq.heappop(openSet)
+            if currentState == goal_state:
                 return actions
 
-            if current_state not in self.explored_states:
-                self.explored_states.add(current_state)
-                legal_actions = self.get_legal_actions(current_state)
+            if currentState not in self.exploredStates:
+                self.exploredStates.add(currentState)
+                legalActions = self.get_legal_actions(currentState)
 
-                for action in legal_actions:
-                    successor_state = self.apply_action(current_state, action)
-                    cost = g_values[current_state] + 1
+                for action in legalActions:
+                    successorState = self.apply_action(currentState, action)
 
-                    if (
-                        successor_state not in g_values
-                        or cost < g_values[successor_state]
-                    ):
-                        g_values[successor_state] = cost
-                        h_value = self.heuristic.get_evaluation(successor_state)
-                        f_value = cost + h_value
+                    cost = gValues[currentState] + 1
+
+                    if successorState not in gValues or cost < gValues[successorState]:
+                        gValues[successorState] = cost
+                        hValue = self.heuristic.get_evaluation(successorState)
+                        fValue = cost + hValue
                         heapq.heappush(
-                            open_set, (f_value, successor_state, actions + [action])
+                            openSet, (fValue, successorState, actions + [action])
                         )
 
         return None
