@@ -157,3 +157,36 @@ class AStar(Algorithm):
                         )
 
         return None
+
+
+class BAB(Algorithm):
+    def __init__(self, heuristic=None):
+        super().__init__(heuristic)
+        self.exploredStates = set()
+
+    def get_steps(self, initial_state, goal_state):
+        openSet = [(0, initial_state, [])]
+        heapq.heapify(openSet)
+        gValues = {initial_state: 0}
+
+        while openSet:
+            currentF, currentState, actions = heapq.heappop(openSet)
+            if currentState == goal_state:
+                return actions
+
+            if currentState not in self.exploredStates:
+                self.exploredStates.add(currentState)
+                legalActions = self.get_legal_actions(currentState)
+
+                for action in legalActions:
+                    successorState = self.apply_action(currentState, action)
+
+                    cost = gValues[currentState] + 1
+
+                    if successorState not in gValues or cost < gValues[successorState]:
+                        gValues[successorState] = cost
+                        heapq.heappush(
+                            openSet, (cost, successorState, actions + [action])
+                        )
+
+        return None
