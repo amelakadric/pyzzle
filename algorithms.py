@@ -69,7 +69,7 @@ class ExampleAlgorithm(Algorithm):
         return solution_actions
 
 
-class BFS(Algorithm):
+class BreadthFirstSearch(Algorithm):
     def get_steps(self, initial_state, goal_state):
         visitedStates = set()
         visitedStates.add(initial_state)
@@ -93,7 +93,7 @@ class BFS(Algorithm):
         return []
 
 
-class BF(Algorithm):
+class BestFirstSearch(Algorithm):
     def get_steps(self, initial_state, goal_state):
         visited = set()
         priorityQueue = PriorityQueue()
@@ -159,7 +159,7 @@ class AStar(Algorithm):
         return None
 
 
-class BAB(Algorithm):
+class BranchAndBound(Algorithm):
     def __init__(self, heuristic=None):
         super().__init__(heuristic)
         self.exploredStates = set()
